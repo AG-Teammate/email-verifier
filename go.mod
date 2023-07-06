@@ -1,4 +1,4 @@
-module github.com/AfterShip/email-verifier
+module github.com/AG-Teammate/email-verifier
 
 go 1.15
 
