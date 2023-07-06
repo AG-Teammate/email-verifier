@@ -104,7 +104,22 @@ func (v *Verifier) CheckSMTP(domain, username string) (*SMTP, error) {
 		return &ret, nil
 	}
 
-	if err = client.Rcpt(email); err == nil {
+	//use a separate SMTP client to workaround hotmail issues
+	additionalClient, mx, err := newSMTPClient(domain, v.proxyURI)
+	defer additionalClient.Close()
+	if err != nil {
+		return &ret, ParseSMTPError(err)
+	}
+	// Sets the HELO/EHLO hostname
+	if err = additionalClient.Hello(v.helloName); err != nil {
+		return &ret, ParseSMTPError(err)
+	}
+
+	// Sets the from email
+	if err = additionalClient.Mail(v.fromEmail); err != nil {
+		return &ret, ParseSMTPError(err)
+	}
+	if err = additionalClient.Rcpt(email); err == nil {
 		ret.Deliverable = true
 	}
 
