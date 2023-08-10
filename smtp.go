@@ -122,6 +122,17 @@ func (v *Verifier) CheckSMTP(domain, username string) (*SMTP, error) {
 	if err = additionalClient.Rcpt(email); err == nil {
 		ret.Deliverable = true
 	}
+	if(err != nil) {
+		errStr := strings.ToLower(err.Error())
+		if(strings.Contains(errStr, "grey") || strings.Contains(errStr, "gray") || strings.Contains(errStr, "later")) {
+			//graylisting - set result as CatchAll so that Reachable = unknown
+			ret.CatchAll = true
+		}
+		if(strings.Contains(errStr, "use master servers")) {
+			//workaround for Recipient address rejected: Use Master Servers, they are online. See https://postmaster.routing.net for help.
+			ret.CatchAll = true
+		}
+	}
 
 	return &ret, nil
 }
