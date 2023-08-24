@@ -132,6 +132,10 @@ func (v *Verifier) CheckSMTP(domain, username string) (*SMTP, error) {
 			//workaround for Recipient address rejected: Use Master Servers, they are online. See https://postmaster.routing.net for help.
 			ret.CatchAll = true
 		}
+		if(strings.Contains(errStr, "access denied")) {
+			//workaround for agenturserver.de weird graylisting with 477 4.7.1 Recipient address rejected: Access denied
+			ret.CatchAll = true
+		}
 	}
 
 	return &ret, nil
